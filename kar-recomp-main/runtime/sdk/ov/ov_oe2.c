@@ -53,7 +53,18 @@ static void ov_display_resolution_event(Cpu *c) {
 
 HOST_OVERRIDE("_ZN2nn2oe17GetPseudoDeviceIdEPNS_4util4UuidE", ov_pseudo_device_id);
 HOST_OVERRIDE("_ZN2nn2ro22InitializeWithPortNameEPKc", ov_ro_init);
-HOST_OVERRIDE("_ZN2nn2oe38GetDefaultDisplayResolutionChangeEventEPNS_2os15SystemEventTypeE", ov_display_resolution_event);
+// Result nn::oe::GetDefaultDisplayResolution(int* width, int* height)
+// The host window is 1920x1080 (see the swapchain line at startup). The SDK's
+// real implementation resolves through sm::Initialize (null on PC).
+static void ov_default_display_resolution(Cpu *c) {
+    int *w = arg_p(c, 0), *h = arg_p(c, 1);
+    if (w) *w = 1920;
+    if (h) *h = 1080;
+    ret_x(c, 0);
+}
+
+HOST_OVERRIDE("_ZN2nn2oe38GetDefaultDisplayResolutionChangeEventEPNS_2os11SystemEventE", ov_display_resolution_event);
+HOST_OVERRIDE("_ZN2nn2oe27GetDefaultDisplayResolutionEPiS1_", ov_default_display_resolution);
 HOST_OVERRIDE("_ZN2nn2oe17GetDisplayVersionEPNS0_14DisplayVersionE", ov_display_version);
 HOST_OVERRIDE("_ZN2nn2oe23GetCurrentGraphicsScaleEv", ov_graphics_scale);
 HOST_OVERRIDE("_ZN2nn2oe31EnterExitRequestHandlingSectionEv", ov_nothing);
