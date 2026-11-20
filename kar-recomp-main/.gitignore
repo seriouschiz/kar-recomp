@@ -1,0 +1,22 @@
+# Generated from the user's game copy: never versioned
+/build/
+/game
+generated/
+/dev/
+/discord/
+scratchpad/
+# Python
+__pycache__/
+.venv/
+*.pyc
+.ruff_cache/
+# Secrets and dumps
+.env
+*.keys
+*.nsp
+*.xci
+*.nca
+*.nso
+
+# Local agent tooling settings (private, never published)
+.agents-*
