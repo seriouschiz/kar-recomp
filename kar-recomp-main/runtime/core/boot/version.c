@@ -84,6 +84,10 @@ static const RtVersion versions[] = {
         .display = "1.3.3",
         .nvn_ret = 0x4c2478c,
         .output_lines = 2160,
+        .sdk_name_pool = 0xb9c8e6,
+        .sdk_name_offsets = 0xba1c44,
+        .sdk_pointers = 0xe056e0,
+        .sdk_last_index = 0x2d6,
         .inits = {{"main", 7939}, {"subsdk0", 2}, {"subsdk1", 20}, {"sdk", 91}},
 	},
     {

@@ -791,6 +791,23 @@ static void ov_font_size(Cpu *c) {
     font_data(c, "GetSharedFontSize", t);
     ret_x(c, fonts.size[t]);
 }
+static void ov_builtin_font_data(Cpu *c) {
+    uint8_t *out = arg_p(c, 0);
+    int64_t t = (int32_t)arg_x(c, 1);
+    if (t < 0 || t >= SHARED_FONT_TYPES)
+        rt_fatal("nn::pl::GetBuiltInFontData: invalid font type %lld", (long long)t);
+    char dir[PLAT_PATH_MAX], path[PLAT_PATH_MAX + 64];
+    snprintf(path, sizeof path, "%s/%s", ov_shared_font_dir(dir, sizeof dir), font_files[t]);
+    FILE *probe = fopen(path, "rb");
+    if (!probe) { memset(out, 0, 24); ret_x(c, 0); return; }
+    fclose(probe);
+    const uint8_t *p = font_data(c, "GetBuiltInFontData", t);
+    memset(out, 0, 24);
+    out[0] = 1;
+    *(uint64_t *)(out + 8) = (uint64_t)(uintptr_t)(p + 8);
+    *(uint64_t *)(out + 16) = fonts.size[t];
+    ret_x(c, 1);
+}
 
 // ==== registration
 HOST_OVERRIDE("_ZN2nn2oe10InitializeEv", ov_oe_initialize);
@@ -865,3 +882,4 @@ HOST_OVERRIDE("_ZN2nn4time48CalculateStandardUserSystemClockDifferenceByUserERKN
 HOST_OVERRIDE("_ZN2nn2pl22GetSharedFontLoadStateENS0_14SharedFontTypeE", ov_font_state);
 HOST_OVERRIDE("_ZN2nn2pl20GetSharedFontAddressENS0_14SharedFontTypeE", ov_font_address);
 HOST_OVERRIDE("_ZN2nn2pl17GetSharedFontSizeENS0_14SharedFontTypeE", ov_font_size);
+HOST_OVERRIDE("_ZN2nn2pl18GetBuiltInFontDataEPNS0_20BuiltInFontDataOunceENS0_20BuiltInFontTypeOunceEb", ov_builtin_font_data);
