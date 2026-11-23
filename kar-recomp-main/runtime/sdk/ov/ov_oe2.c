@@ -33,11 +33,6 @@ static void ov_pseudo_device_id(Cpu *c) {
     ret_x(c, 0);
 }
 
-// Result nn::ro::InitializeWithPortName(const char* portName)
-// nn::ro loads NROs at runtime; in a static recompilation every module is already
-// loaded. The SDK's service-resolution path writes through a null service pointer
-// on PC; returning success bypasses it.
-static void ov_ro_init(Cpu *c) { ret_x(c, 0); }
 // Result nn::oe::GetDefaultDisplayResolutionChangeEvent(nn::os::SystemEvent *out)
 // The SDK creates the event via its IPC path (a null service pointer on PC).
 // CreateSystemEvent is local to the process and works, so call it with
@@ -52,7 +47,6 @@ static void ov_display_resolution_event(Cpu *c) {
 }
 
 HOST_OVERRIDE("_ZN2nn2oe17GetPseudoDeviceIdEPNS_4util4UuidE", ov_pseudo_device_id);
-HOST_OVERRIDE("_ZN2nn2ro22InitializeWithPortNameEPKc", ov_ro_init);
 // Result nn::oe::GetDefaultDisplayResolution(int* width, int* height)
 // The host window is 1920x1080 (see the swapchain line at startup). The SDK's
 // real implementation resolves through sm::Initialize (null on PC).
