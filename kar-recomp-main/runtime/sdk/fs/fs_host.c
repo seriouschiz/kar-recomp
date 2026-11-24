@@ -663,6 +663,19 @@ static uint32_t mount_add(const char *name, int kind, const char *root) {
     return 0;
 }
 
+static int mount_is_mounted(const char *name) {
+    if (!name || !*name || strlen(name) >= 32 || strchr(name, ':') || strchr(name, '/')) return 0;
+    char as_path[40];
+    snprintf(as_path, sizeof as_path, "%s:", name);
+    if (romfs_owns(as_path)) return 1;
+    int found = 0;
+    plat_mutex_lock_shared(&lock);
+    for (int i = 0; i < NMOUNTS; i++)
+        if (mounts[i].kind && !strcmp(mounts[i].name, name)) { found = 1; break; }
+    plat_mutex_unlock_shared(&lock);
+    return found;
+}
+
 // A path component every host stores under exactly this name: not empty, ".", "..", no reserved character, no trailing
 // dot or space (Windows strips those, which would alias two names).
 static int component_ok(const char *c, size_t n) {
@@ -785,6 +798,17 @@ static uint32_t mount_cache(const char *name, int index) {
     cache_dir(index, p, sizeof p);
     if (plat_fs_kind(p) != PLAT_FS_DIR) return FS_R_TARGET_NOT_FOUND;
     return mount_add(name, M_CACHE, p);
+}
+
+static uint32_t mount_default_cache(const char *name) {
+    ready();
+    char p[PATH_CAP];
+    cache_dir(0, p, sizeof p);
+    if (plat_fs_kind(p) != PLAT_FS_DIR) {
+        uint32_t r = create_cache(0, 0, 0);
+        if (r) return r;
+    }
+    return mount_cache(name, 0);
 }
 
 typedef struct { int32_t index; uint8_t reserved[0x1c]; } CacheStorageInfo;
@@ -1190,6 +1214,15 @@ static void ov_read_directory(Cpu *c) { ret_x(c, read_directory(arg_p(c, 0), arg
 static void ov_close_directory(Cpu *c) { close_directory(arg_x(c, 0)); }
 static void ov_get_directory_entry_count(Cpu *c) { ret_x(c, get_directory_entry_count(arg_p(c, 0), arg_x(c, 1))); }
 static void ov_mount_save(Cpu *c) { ret_x(c, mount_save(arg_p(c, 0), arg_p(c, 1))); }
+static void ov_is_mounted(Cpu *c) { ret_x(c, mount_is_mounted(arg_p(c, 0))); }
+static void ov_get_save_data_size(Cpu *c) {
+    int64_t *save_size = arg_p(c, 0);
+    int64_t *journal_size = arg_p(c, 1);
+    if (!save_size || !journal_size) { ret_x(c, FS_R_INVALID_ARGUMENT); return; }
+    *save_size = 0;
+    *journal_size = 0;
+    ret_x(c, 0);
+}
 static void ov_mount_save_ro(Cpu *c) { ret_x(c, mount_save_ro(arg_p(c, 0), arg_x(c, 1), arg_p(c, 2))); }
 static void ov_save_exists(Cpu *c) { ret_x(c, save_exists(arg_x(c, 0), arg_p(c, 1))); }
 static void ov_mount_temp(Cpu *c) { ret_x(c, mount_temp(arg_p(c, 0))); }
@@ -1198,6 +1231,15 @@ static void ov_commit(Cpu *c) { ret_x(c, commit(arg_p(c, 0))); }
 static void ov_create_cache(Cpu *c) { ret_x(c, create_cache(I32(0), I64(1), I64(2))); }
 static void ov_delete_cache(Cpu *c) { ret_x(c, delete_cache(I32(0))); }
 static void ov_mount_cache(Cpu *c) { ret_x(c, mount_cache(arg_p(c, 0), I32(1))); }
+static void ov_mount_cache_default(Cpu *c) { ret_x(c, mount_default_cache(arg_p(c, 0))); }
+static void ov_get_cache_size(Cpu *c) {
+    int64_t *cache_size = arg_p(c, 0);
+    int64_t *journal_size = arg_p(c, 1);
+    if (!cache_size || !journal_size) { ret_x(c, FS_R_INVALID_ARGUMENT); return; }
+    *cache_size = 0;
+    *journal_size = 0;
+    ret_x(c, 0);
+}
 static void ov_open_cache_list(Cpu *c) { ret_x(c, open_cache_list(arg_p(c, 0))); }
 static void ov_read_cache_list(Cpu *c) { ret_x(c, read_cache_list(arg_p(c, 0), arg_p(c, 1), arg_x(c, 2), I32(3))); }
 static void ov_close_cache_list(Cpu *c) { close_cache_list(arg_x(c, 0)); }
@@ -1226,6 +1268,9 @@ static void ov_set_priority(Cpu *c) { (void)c; }
 #define S_CLOSE_DIRECTORY "_ZN2nn2fs14CloseDirectoryENS0_15DirectoryHandleE"
 #define S_GET_DIRECTORY_ENTRY_COUNT "_ZN2nn2fs22GetDirectoryEntryCountEPlNS0_15DirectoryHandleE"
 #define S_MOUNT_SAVE "_ZN2nn2fs13MountSaveDataEPKcRKNS_7account3UidE"
+#define S_IS_MOUNTED "_ZN2nn2fs9IsMountedEPKc"
+#define S_GET_SAVE_SIZE "_ZN2nn2fs15GetSaveDataSizeEPlS1_RKNS_7account3UidE"
+#define S_ENSURE_SAVE "_ZN2nn2fs14EnsureSaveDataERKNS_7account3UidE"
 #define S_MOUNT_SAVE_RO "_ZN2nn2fs21MountSaveDataReadOnlyEPKcNS_13ApplicationIdERKNS_7account3UidE"
 #define S_SAVE_EXISTS "_ZN2nn2fs18IsSaveDataExistingENS_13ApplicationIdERKNS_7account3UidE"
 #define S_MOUNT_TEMP "_ZN2nn2fs21MountTemporaryStorageEPKc"
@@ -1233,7 +1278,9 @@ static void ov_set_priority(Cpu *c) { (void)c; }
 #define S_COMMIT "_ZN2nn2fs6CommitEPKc"
 #define S_CREATE_CACHE "_ZN2nn2fs18CreateCacheStorageEill"
 #define S_DELETE_CACHE "_ZN2nn2fs18DeleteCacheStorageEi"
+#define S_MOUNT_CACHE_DEFAULT "_ZN2nn2fs17MountCacheStorageEPKc"
 #define S_MOUNT_CACHE "_ZN2nn2fs17MountCacheStorageEPKci"
+#define S_GET_CACHE_SIZE "_ZN2nn2fs19GetCacheStorageSizeEPlS1_i"
 #define S_OPEN_CACHE_LIST "_ZN2nn2fs20OpenCacheStorageListEPNS0_22CacheStorageListHandleE"
 #define S_READ_CACHE_LIST "_ZN2nn2fs20ReadCacheStorageListEPiPNS0_16CacheStorageInfoENS0_22CacheStorageListHandleEi"
 #define S_CLOSE_CACHE_LIST "_ZN2nn2fs21CloseCacheStorageListENS0_22CacheStorageListHandleE"
@@ -1263,6 +1310,12 @@ HOST_OVERRIDE(S_READ_DIRECTORY, ov_read_directory);
 HOST_OVERRIDE(S_CLOSE_DIRECTORY, ov_close_directory);
 HOST_OVERRIDE(S_GET_DIRECTORY_ENTRY_COUNT, ov_get_directory_entry_count);
 HOST_OVERRIDE(S_MOUNT_SAVE, ov_mount_save);
+HOST_OVERRIDE(S_IS_MOUNTED, ov_is_mounted);
+// The host stores save files in a regular directory and does not impose Horizon's per-title size and journal limits.
+HOST_OVERRIDE(S_GET_SAVE_SIZE, ov_get_save_data_size);
+// The host save mount creates its local profile directory on first use; do not ask Horizon to create it via IPC.
+static void ov_ensure_save(Cpu *c) { (void)c; ret_x(c, 0); }
+HOST_OVERRIDE(S_ENSURE_SAVE, ov_ensure_save);
 HOST_OVERRIDE(S_MOUNT_SAVE_RO, ov_mount_save_ro);
 HOST_OVERRIDE(S_SAVE_EXISTS, ov_save_exists);
 HOST_OVERRIDE(S_MOUNT_TEMP, ov_mount_temp);
@@ -1270,7 +1323,9 @@ HOST_OVERRIDE(S_UNMOUNT, ov_unmount);
 HOST_OVERRIDE(S_COMMIT, ov_commit);
 HOST_OVERRIDE(S_CREATE_CACHE, ov_create_cache);
 HOST_OVERRIDE(S_DELETE_CACHE, ov_delete_cache);
+HOST_OVERRIDE(S_MOUNT_CACHE_DEFAULT, ov_mount_cache_default);
 HOST_OVERRIDE(S_MOUNT_CACHE, ov_mount_cache);
+HOST_OVERRIDE(S_GET_CACHE_SIZE, ov_get_cache_size);
 HOST_OVERRIDE(S_OPEN_CACHE_LIST, ov_open_cache_list);
 HOST_OVERRIDE(S_READ_CACHE_LIST, ov_read_cache_list);
 HOST_OVERRIDE(S_CLOSE_CACHE_LIST, ov_close_cache_list);
@@ -1282,7 +1337,7 @@ HOST_OVERRIDE(S_SET_PRIORITY, ov_set_priority);
 static const char *const probe_symbols[] = {
     S_OPEN_FILE, S_FILE_SIZE, S_CLOSE_FILE, S_ENTRY_TYPE, S_READ_FILE, S_READ_OPTIONS, S_READ_EXACT, S_WRITE_FILE,
     S_SET_FILE_SIZE, S_FLUSH_FILE, S_CREATE_FILE, S_DELETE_FILE, S_RENAME_FILE, S_CREATE_DIRECTORY, S_DELETE_RECURSIVE,
-    S_OPEN_DIRECTORY, S_READ_DIRECTORY, S_CLOSE_DIRECTORY, S_MOUNT_SAVE, S_MOUNT_SAVE_RO, S_SAVE_EXISTS, S_MOUNT_TEMP,
+    S_OPEN_DIRECTORY, S_READ_DIRECTORY, S_CLOSE_DIRECTORY, S_MOUNT_SAVE, S_IS_MOUNTED, S_MOUNT_SAVE_RO, S_SAVE_EXISTS, S_MOUNT_TEMP,
     S_UNMOUNT, S_COMMIT, S_CREATE_CACHE, S_DELETE_CACHE, S_MOUNT_CACHE, S_OPEN_CACHE_LIST, S_READ_CACHE_LIST,
     S_CLOSE_CACHE_LIST, S_SET_PRIORITY, S_MOUNT_ROM, S_QUERY_CACHE, S_INITIALIZE};
 #define NPROBE ((int)(sizeof probe_symbols / sizeof *probe_symbols))

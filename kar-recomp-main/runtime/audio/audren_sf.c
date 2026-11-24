@@ -216,7 +216,7 @@ static void build(void *arg) {
     static const GuestFn dev[] = {device_list, device_set_volume, device_get_volume, device_active_name,
                                   device_event, device_channels, device_list, device_set_volume, device_get_volume,
                                   /* 10 */ device_active_name, device_event, device_event, device_active_name,
-                                  device_list, NULL, NULL, NULL, NULL, device_set_autotune, device_get_autotune};
+                                  device_list, NULL, NULL, device_event, NULL, device_set_autotune, device_get_autotune};
     _Static_assert(4 + sizeof mgr / sizeof *mgr == MANAGER_SLOTS, "IAudioRendererManager slots");
     _Static_assert(4 + sizeof ren / sizeof *ren == RENDERER_SLOTS, "IAudioRenderer slots");
     _Static_assert(4 + sizeof dev / sizeof *dev == DEVICE_SLOTS, "IAudioDevice slots");

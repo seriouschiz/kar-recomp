@@ -19,6 +19,10 @@ static int lan_up(void) { return local_mode && ov_lan(); }
 
 static void ov_ok(Cpu *c) { ret_x(c, 0); }
 static void ov_nothing(Cpu *c) { (void)c; }
+// Result nnsslInitialize(): the host has no Horizon SSL service; let the game's caller take its unavailable path.
+static void ov_ssl_unavailable(Cpu *c) { (void)c; ret_x(c, 1); }
+// Result nn::bcat::MountDeliveryCacheStorage(): delivery content is unavailable offline; do not query Horizon FS.
+static void ov_bcat_unavailable(Cpu *c) { (void)c; ret_x(c, 1); }
 // void SetLocalNetworkMode(bool)
 static void ov_local_mode(Cpu *c) { local_mode = (int)(arg_x(c, 0) & 1); }
 // bool IsNetworkAvailable()
@@ -52,6 +56,10 @@ HOST_OVERRIDE("_ZN2nn4nifm27SubmitNetworkRequestAndWaitEv", ov_nothing);
 HOST_OVERRIDE("_ZN2nn4nifm31HandleNetworkRequestErrorResultEv", ov_request_result);
 HOST_OVERRIDE("_ZN2nn4nifm22GetCurrentIpConfigInfoEP7in_addrS2_S2_S2_S2_", ov_ip_config);
 HOST_OVERRIDE("_ZN2nn4nifm22GetCurrentProxySettingEPNS0_12ProxySettingE", ov_no_network);
+HOST_OVERRIDE("nnsslInitialize", ov_ssl_unavailable);
+// BCAT is Nintendo's background delivery service; leave it unavailable and let the game's no-network worker idle.
+HOST_OVERRIDE("_ZN2nn4bcat10InitializeEv", ov_nothing);
+HOST_OVERRIDE("_ZN2nn4bcat25MountDeliveryCacheStorageEv", ov_bcat_unavailable);
 
 // ---- nn::friends: no friend list offline; play history registration is accepted and dropped.
 #define FRIENDS_R_UNAVAILABLE (121u | (1u << 9))   // module 121; description is a hypothesis

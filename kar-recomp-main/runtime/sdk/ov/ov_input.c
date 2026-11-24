@@ -101,13 +101,8 @@ static void ov_style_set(Cpu *c) {
     ret_x(c, v);
 }
 
-// int GetNpadStates(<State> *out, int count, const NpadIdType &id): the newest state only. want: the style of the
-// overload, 0 for the Joy-Con overloads (never connected).
-static void npad_states(Cpu *c, uint32_t want) {
-    NpadState *out = arg_p(c, 0);
-    int max = (int)arg_x(c, 1);
-    uint32_t id = *need_id(c, 2, "GetNpadStates");
-    if (max <= 0) { ret_x(c, 0); return; }
+static int npad_states_fill(NpadState *out, int max, uint32_t id, uint32_t want) {
+    if (max <= 0) return 0;
     if (!out) rt_fatal("nn::hid::GetNpadStates: null output");
     plat_mutex_lock(&lock);
     NpadState s = {.sampling = ++sample};
@@ -120,11 +115,32 @@ static void npad_states(Cpu *c, uint32_t want) {
         input_poll_player(player, &s.buttons, &s.lx, &s.ly, &s.rx, &s.ry);
     }
     *out = s;
-    ret_x(c, 1);
+    return 1;
+}
+
+// int GetNpadStates(<State> *out, int count, const NpadIdType &id): the newest state only. want: the style of the
+// overload, 0 for the Joy-Con overloads (never connected).
+static void npad_states(Cpu *c, uint32_t want) {
+    NpadState *out = arg_p(c, 0);
+    int max = (int)arg_x(c, 1);
+    uint32_t id = *need_id(c, 2, "GetNpadStates");
+    ret_x(c, npad_states_fill(out, max, id, want));
 }
 static void ov_states_full_key(Cpu *c) { npad_states(c, STYLE_FULL_KEY); }
 static void ov_states_handheld(Cpu *c) { npad_states(c, STYLE_HANDHELD); }
 static void ov_states_joycon(Cpu *c) { npad_states(c, 0); }
+
+// The SDK detail overload reads console shared memory directly; absent records return 0x58cca before host input can
+// be served. Route it through the same state generator as the public overload.
+static void ov_detail_states_full_key(Cpu *c) {
+    int *count = arg_p(c, 0);
+    NpadState *out = arg_p(c, 1);
+    int max = (int)arg_x(c, 2);
+    uint32_t id = *need_id(c, 3, "detail::GetNpadStates");
+    if (!count) rt_fatal("nn::hid::detail::GetNpadStates: null count output");
+    *count = npad_states_fill(out, max, id, STYLE_FULL_KEY);
+    ret_x(c, 0); // nn::Result success
+}
 
 // void SetNpadJoyHoldType(NpadJoyHoldType type)
 static void ov_hold_type(Cpu *c) {
@@ -425,6 +441,9 @@ static void ov_vib_mounted(Cpu *c) {
     ret_x(c, 0);
 }
 
+// bool IsOunceVibrationDeviceMounted(const VibrationDeviceHandle &): the host exposes no Ounce accessory.
+static void ov_ounce_vibration_mounted(Cpu *c) { (void)c; ret_x(c, 0); }
+
 // Result detail::IsVibrationPermitted(bool *out)
 static void ov_vib_permitted(Cpu *c) {
     uint8_t *out = arg_p(c, 0);
@@ -512,12 +531,15 @@ static void ov_six_state(Cpu *c) {
     six_fill(arg_p(c, 0), 1, arg_p(c, 1), "GetSixAxisSensorState");
     ret_x(c, 0);
 }
+// bool IsSixAxisSensorAtRest(const SixAxisSensorHandle &): host sensor samples are stationary.
+static void ov_six_at_rest(Cpu *c) { (void)c; ret_x(c, 1); }
 
 HOST_OVERRIDE("_ZN2nn3hid14InitializeNpadEv", ov_initialize_npad);
 HOST_OVERRIDE("_ZN2nn3hid22SetSupportedNpadIdTypeEPKjm", ov_supported_ids);
 HOST_OVERRIDE("_ZN2nn3hid24SetSupportedNpadStyleSetENS_4util10BitFlagSetILi32ENS0_12NpadStyleTagEEE", ov_supported_styles);
 HOST_OVERRIDE("_ZN2nn3hid15GetNpadStyleSetERKj", ov_style_set);
 HOST_OVERRIDE("_ZN2nn3hid13GetNpadStatesEPNS0_16NpadFullKeyStateEiRKj", ov_states_full_key);
+HOST_OVERRIDE("_ZN2nn3hid6detail13GetNpadStatesEPiPNS0_16NpadFullKeyStateEiRKj", ov_detail_states_full_key);
 HOST_OVERRIDE("_ZN2nn3hid13GetNpadStatesEPNS0_16NpadJoyDualStateEiRKj", ov_states_joycon);
 HOST_OVERRIDE("_ZN2nn3hid13GetNpadStatesEPNS0_16NpadJoyLeftStateEiRKj", ov_states_joycon);
 HOST_OVERRIDE("_ZN2nn3hid13GetNpadStatesEPNS0_17NpadJoyRightStateEiRKj", ov_states_joycon);
@@ -540,6 +562,8 @@ HOST_OVERRIDE("_ZN2nn3hid6detail23GetActualVibrationValueEPNS0_14VibrationValueE
 HOST_OVERRIDE("_ZN2nn3hid6detail22GetVibrationDeviceInfoEPNS0_19VibrationDeviceInfoERKNS0_21VibrationDeviceHandleE",
               ov_vib_info);
 HOST_OVERRIDE("_ZN2nn3hid6detail24IsVibrationDeviceMountedEPbRKNS0_21VibrationDeviceHandleE", ov_vib_mounted);
+HOST_OVERRIDE("_ZN2nn3hid29IsOunceVibrationDeviceMountedERKNS0_21VibrationDeviceHandleE",
+              ov_ounce_vibration_mounted);
 HOST_OVERRIDE("_ZN2nn3hid6detail20IsVibrationPermittedEPb", ov_vib_permitted);
 HOST_OVERRIDE("_ZN2nn3hid6detail15PermitVibrationEb", ov_vib_permit);
 HOST_OVERRIDE("_ZN2nn3hid6detail18StartSixAxisSensorERKNS0_19SixAxisSensorHandleE", ov_six_start);
@@ -548,6 +572,7 @@ HOST_OVERRIDE("_ZN2nn3hid6detail22GetSixAxisSensorStatesEPiPNS0_18SixAxisSensorS
               ov_six_states);
 HOST_OVERRIDE("_ZN2nn3hid6detail21GetSixAxisSensorStateEPNS0_18SixAxisSensorStateERKNS0_19SixAxisSensorHandleE",
               ov_six_state);
+HOST_OVERRIDE("_ZN2nn3hid21IsSixAxisSensorAtRestERKNS0_19SixAxisSensorHandleE", ov_six_at_rest);
 
 // ---- 1.8.0's mouse APIs (none in 1.0.0): the Joy-Con 2 as a mouse (Jcms) and a USB mouse (Nmouse). A PC is a
 // console with neither attached: Jcms handles exist but report no samples, and there is no mouse. Their SDK versions

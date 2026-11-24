@@ -81,6 +81,18 @@ static int vi_up(void) {
     return r;
 }
 
+// StreamPlay's individual-display service has no host equivalent; every guest display shares the one SDL/Vulkan window.
+static void ov_streamplay_displays(Cpu *c) {
+    (void)arg_x(c, 0);
+    if (!vi_up()) ov_vi_initialize(c);
+    ret_x(c, 0);
+}
+static void ov_streamplay_native_window(Cpu *c) {
+    (void)arg_x(c, 0);
+    if (!vi_up()) ov_vi_initialize(c);
+    ret_x(c, (uintptr_t)window);
+}
+
 // Result nn::vi::OpenDefaultDisplay(Display **out)
 static void ov_open_display(Cpu *c) {
     void **out = arg_p(c, 0);
@@ -168,6 +180,8 @@ HOST_OVERRIDE("_ZN2nv18InitializeGraphicsEPvm", ov_initialize_graphics);
 HOST_OVERRIDE("_ZN2nv9InitCheckEv", ov_init_check);
 HOST_OVERRIDE("_ZN2nv28SetGraphicsDevtoolsAllocatorEPFPvmmS0_EPFvS0_S0_EPFS0_S0_mS0_ES0_", ov_devtools_allocator);
 HOST_OVERRIDE("_ZN2nn2vi10InitializeEv", ov_vi_initialize);
+HOST_OVERRIDE("_ZN2nn10streamplay24CreateIndividualDisplaysEi", ov_streamplay_displays);
+HOST_OVERRIDE("_ZN2nn10streamplay21GetNativeWindowHandleENS0_7GuestIdE", ov_streamplay_native_window);
 HOST_OVERRIDE("_ZN2nn2vi18OpenDefaultDisplayEPPNS0_7DisplayE", ov_open_display);
 HOST_OVERRIDE("_ZN2nn2vi11CreateLayerEPPNS0_5LayerEPNS0_7DisplayE", ov_create_layer);
 HOST_OVERRIDE("_ZN2nn2vi15GetNativeWindowEPPvPNS0_5LayerE", ov_native_window);

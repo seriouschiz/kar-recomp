@@ -168,6 +168,9 @@ static void ov_desired_language(Cpu *c) {
 
 static void ov_oe_initialize(Cpu *c) { (void)c; rt_log("oe: application environment: local Windows process"); }
 
+// The SDK's setter locks nn::gsv::GetUserSession(), which is null during KAR startup; presentation pacing is host-owned.
+static void ov_graphics_target_frame_rate_auto(Cpu *c) { (void)c; }
+
 
 // void SetCpuBoostMode(CpuBoostMode mode)
 static void ov_cpu_boost(Cpu *c) {
@@ -270,6 +273,9 @@ static void ov_pop(Cpu *c) {
     ret_x(c, m);
 }
 
+// bool TryPopNotificationMessage(uint32_t *message): no Horizon notification event or queue exists on the host.
+static void ov_try_pop(Cpu *c) { (void)c; ret_x(c, 0); }
+
 // int applet::GetPreviousProgramIndex(): started directly, not from an ExecuteProgram chain
 static void ov_previous_program(Cpu *c) { ret_x(c, (uint64_t)(int64_t)-1); }
 // AppletResourceUserId applet:: / am::GetAppletResourceUserId(): one application, one stable non-zero id
@@ -287,6 +293,15 @@ static void ov_result_ok(Cpu *c) { ret_x(c, 0); }   // RequestImmediateTransmiss
 
 // nn::nfp::Mount, which sdk binds through its own GOT (MKW never initialises nfp): no NFC reader
 static void ov_nfp_no_device(Cpu *c) { ret_x(c, NFP_R_DEVICE_NOT_FOUND); }
+// NFP initialization would open the Horizon NFC service; the host has no NFC reader, so leave the service unavailable.
+static void ov_nfp_initialize(Cpu *c) { (void)c; }
+// AttachAvailabilityChangeEvent: the absent host NFC device never changes; bind an event that remains unsignalled.
+static void ov_nfp_attach_event(Cpu *c) {
+    uint64_t event = arg_x(c, 0);
+    if (!event) { ret_x(c, NFP_R_DEVICE_NOT_FOUND); return; }
+    kern_bind_system_event(c, event, 1);
+    ret_x(c, 0);
+}
 
 // void err::ShowError(Result): the game's error dialog, logged
 static void ov_show_error(Cpu *c) {
@@ -811,6 +826,7 @@ static void ov_builtin_font_data(Cpu *c) {
 
 // ==== registration
 HOST_OVERRIDE("_ZN2nn2oe10InitializeEv", ov_oe_initialize);
+HOST_OVERRIDE("_ZN2nn2oe30SetGraphicsTargetFrameRateAutoEv", ov_graphics_target_frame_rate_auto);
 HOST_OVERRIDE("_ZN2nn2oe18GetDesiredLanguageEv", ov_desired_language);
 HOST_OVERRIDE("_ZN2nn2oe15SetCpuBoostModeENS0_12CpuBoostModeE", ov_cpu_boost);
 HOST_OVERRIDE("_ZN2nn2oe16GetOperationModeEv", ov_operation_mode);
@@ -828,11 +844,14 @@ HOST_OVERRIDE("_ZN2nn2oe25GetProgramTotalActiveTimeEv", ov_active_time);
 HOST_OVERRIDE("_ZN2nn2oe38SetUserInactivityDetectionTimeExtendedEb", ov_inactivity_extended);
 HOST_OVERRIDE("_ZN2nn2oe17FinishStartupLogoEv", ov_finish_logo);
 HOST_OVERRIDE("_ZN2nn2oe22PopNotificationMessageEv", ov_pop);
+HOST_OVERRIDE("_ZN2nn2oe25TryPopNotificationMessageEPj", ov_try_pop);
 HOST_OVERRIDE("_ZN2nn5prepo10PlayReport4SaveEv", ov_report_save);
 HOST_OVERRIDE("_ZN2nn5prepo10PlayReport4SaveERKNS_7account3UidE", ov_report_save);
 HOST_OVERRIDE("_ZN2nn5prepo28RequestImmediateTransmissionEv", ov_result_ok);
 HOST_OVERRIDE("_ZN2nn5prepo27AddInternetConnectionStatusEPNS0_10PlayReportEPKcS4_S4_", ov_result_ok);
 HOST_OVERRIDE("_ZN2nn3nfp5MountERKNS0_12DeviceHandleENS0_9ModelTypeENS0_11MountTargetE", ov_nfp_no_device);
+HOST_OVERRIDE("_ZN2nn3nfp37InitializeWithExtendedApplicationAreaEv", ov_nfp_initialize);
+HOST_OVERRIDE("_ZN2nn3nfp29AttachAvailabilityChangeEventEPNS_2os15SystemEventTypeE", ov_nfp_attach_event);
 HOST_OVERRIDE("_ZN2nn3err9ShowErrorENS_6ResultE", ov_show_error);
 HOST_OVERRIDE("_ZN2nn3err9ShowErrorERKNS0_18ErrorResultVariantE", ov_show_error_variant);
 HOST_OVERRIDE("_ZN2nn6crypto36GenerateCryptographicallyRandomBytesEPvm", ov_random_bytes);
