@@ -4,8 +4,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        **A crash, an error or a glitch?** Open an [issue with the bug report form](https://github.com/adriadam10/mkw-recomp/issues/new?template=bug_report.yml) and attach `logs/mkw.log`: reports posted here are sent there and closed.
-        Many questions are already answered in the [FAQ](https://github.com/adriadam10/mkw-recomp/wiki/FAQ) (skipping the start screen, game versions, updating, saves, online play) and in [Troubleshooting](https://github.com/adriadam10/mkw-recomp/wiki/Troubleshooting).
+        **A crash, an error or a glitch?** Open an [issue with the bug report form](https://github.com/seriouschiz/kar-recomp/issues/new?template=bug_report.yml) and attach `logs/mkw.log`: reports posted here are sent there and closed.
+        Many questions are already answered in the [FAQ](https://github.com/seriouschiz/kar-recomp/wiki/FAQ) (skipping the start screen, game versions, updating, saves, online play) and in [Troubleshooting](https://github.com/seriouschiz/kar-recomp/wiki/Troubleshooting).
   - type: checkboxes
     attributes:
       label: Before asking
@@ -15,7 +15,7 @@ body:
   - type: input
     attributes:
       label: Release
-      description: The mkw-recomp release you use (the start screen shows it), if it matters
+      description: The kar-recomp release you use (the start screen shows it), if it matters
       placeholder: v0.1.13
   - type: textarea
     attributes:

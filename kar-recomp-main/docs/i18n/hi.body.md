@@ -1,4 +1,4 @@
-*Mario Kart World* (Nintendo Switch 2, संस्करण 1.0.0 और 1.8.0) का स्टैटिक रीकम्पाइलेशन, Linux और Windows के लिए एक नेटिव PC
+*Kirby Air Riders* (Nintendo Switch 2, संस्करण 1.0.0 और 1.8.0) का स्टैटिक रीकम्पाइलेशन, Linux और Windows के लिए एक नेटिव PC
 प्रोग्राम के रूप में। इसके लिए आपको गेम की अपनी कॉपी चाहिए, जो आपने अपने कंसोल से डंप की हो: गेम का कुछ भी इस रिपॉज़िटरी या
 इसकी रिलीज़ में शामिल नहीं है।
 
@@ -31,7 +31,7 @@ Nintendo SDK के फ़ंक्शन (`nn::*`) नाम से हमा�
 - **हर मेनू** कंसोल से मिलाकर जाँचा गया: अगले हैं मोड, कैरेक्टर और व्हीकल चयन।
 - **कोई GPU हैंग नहीं** और कम GPU मेमोरी, फिर बिना अटके लोडिंग और गैर-रोलिंग डिस्ट्रीब्यूशन के लिए एक Linux पैकेज।
 - **1.8.0, 1.0.0 के बराबर**: उसका अल्ट्रावाइड आस्पेक्ट, शैडो मैप का आकार और स्थिर सीड
-  ([#19](https://github.com/adriadam10/mkw-recomp/issues/19))।
+  ([#19](https://github.com/seriouschiz/kar-recomp/issues/19))।
 
 \* 09/11/2026 को हमारी परीक्षण मशीन पर मापा गया: Radeon 660M APU (Ryzen 5 7535HS), Linux, 720p आंतरिक रिज़ॉल्यूशन।
 
@@ -40,7 +40,7 @@ Nintendo SDK के फ़ंक्शन (`nn::*`) नाम से हमा�
 ## प्रदर्शन
 
 मापे गए फ़्रेम समय, हर एक अपने संस्करण के साथ, [docs/project/performance.md](docs/project/performance.md) में हैं। अपनी मशीन जोड़ने के लिए एक
-[प्रदर्शन रिपोर्ट](https://github.com/adriadam10/mkw-recomp/issues/new?template=performance.yml) खोलें: वह रिपोर्ट के संस्करण
+[प्रदर्शन रिपोर्ट](https://github.com/seriouschiz/kar-recomp/issues/new?template=performance.yml) खोलें: वह रिपोर्ट के संस्करण
 के साथ तालिका में जुड़ जाती है। ये समय गेम के अपने फ़्रेम हैं: फ़्रेम जनरेशन ज़्यादा फ़्रेम दिखाता है पर उन्हें छोटा नहीं करता।
 16.7 ms यानी 60 fps; Frame rate को Automatic (कंसोल वाला) पर रखने पर 60 न पहुँचने पर यह 30 fps पर आ जाता है, और 33.3 ms से
 लंबा फ़्रेम रेस को असली समय से धीमा चलाता है।
@@ -61,9 +61,9 @@ Nintendo SDK के फ़ंक्शन (`nn::*`) नाम से हमा�
 
 ![Game files पेज, जहाँ सेटअप खिलाड़ी का डंप लेता है](docs/images/launcher-files.png)
 
-1. अपने Switch 2 से Mario Kart World 1.0.0 या 1.8.0 डंप करें (`exefs/` और `romfs/`, डिक्रिप्ट किए हुए; 1.8.0 में अपडेट बेस गेम
+1. अपने Switch 2 से Kirby Air Riders 1.0.0 या 1.8.0 डंप करें (`exefs/` और `romfs/`, डिक्रिप्ट किए हुए; 1.8.0 में अपडेट बेस गेम
    की RomFS में मिला हुआ), या वही डंप एक `.nup` या `.nx` फ़ाइल में पैक किया हुआ।
-2. [Releases](https://github.com/adriadam10/mkw-recomp/releases) से अपने सिस्टम के लिए लॉन्चर डाउनलोड करें: Linux पर
+2. [Releases](https://github.com/seriouschiz/kar-recomp/releases) से अपने सिस्टम के लिए लॉन्चर डाउनलोड करें: Linux पर
    `.AppImage` (ARM पर `-aarch64`; डिफ़ॉल्ट गेम फ़ोल्डर `~/.local/share/mkw-recomp` है; glibc 2.31 या नया: Debian 11,
    Ubuntu 20.04, SteamOS और उसके बाद के), Windows पर `.zip`, एक फ़ोल्डर में अनज़िप करके। दोनों के लिए लगभग 30 GB ख़ाली जगह
    चाहिए।
@@ -119,7 +119,7 @@ Nintendo SDK के फ़ंक्शन (`nn::*`) नाम से हमा�
 
 स्टार्ट स्क्रीन का **Mods** पेज मॉड वैसे ही इंस्टॉल करता है जैसे वे गेम के लिए प्रकाशित होते हैं, और उन्हें दो टैब में दिखाता है:
 
-- **Find on GameBanana**: [GameBanana](https://gamebanana.com/games/22152) पर Mario Kart World के मॉड, सूची या खोज के ज़रिए,
+- **Find on GameBanana**: [GameBanana](https://gamebanana.com/games/22152) पर Kirby Air Riders के मॉड, सूची या खोज के ज़रिए,
   हर मॉड के लेखक, लाइसेंस, स्क्रीनशॉट और विवरण के साथ। **Install** फ़ाइल GameBanana से डाउनलोड करता है, सिर्फ़ तब जब आप कहें।
 - **Installed**: आपके मॉड, हर एक का अपना ऑन/ऑफ़ स्विच; **Import zip / Import folder** आपके पास पहले से मौजूद मॉड लेता है
   (`.zip`, `.rar` या `.7z`, जिसमें कहीं भी `romfs/` और/या `exefs/` हो, `atmosphere/contents/` ढाँचे सहित)।
@@ -205,7 +205,7 @@ build/mkw
 Dear ImGui, bc7enc, stb_image, AMD FidelityFX FSR 1 और Roboto। इस्तेमाल किया गया हर स्रोत, उसके लाइसेंस और उससे क्या लिया गया
 (कोड सिर्फ़ MIT प्रोजेक्टों से; GPL प्रोजेक्टों से सिर्फ़ विचार), [docs/project/research.md](docs/project/research.md#sources) में सूचीबद्ध है।
 
-Mario Kart World © Nintendo है। यह प्रोजेक्ट Nintendo से संबद्ध या उसके द्वारा समर्थित नहीं है, इसमें गेम का कोई कोड या एसेट
+Kirby Air Riders © Nintendo है। यह प्रोजेक्ट Nintendo से संबद्ध या उसके द्वारा समर्थित नहीं है, इसमें गेम का कोई कोड या एसेट
 नहीं है, और यह उन्हें पाने में मदद नहीं करता।
 
 मॉड उनके लेखकों के हैं और उनके अपने लाइसेंस के तहत आते हैं। यह प्रोजेक्ट GameBanana या किसी मॉड लेखक से संबद्ध या उनके द्वारा
@@ -214,5 +214,5 @@ GameBanana की सार्वजनिक सूची दिखाती �
 
 ## योगदान
 
-देखें [CONTRIBUTING.md](CONTRIBUTING.md)। बग और प्रदर्शन रिपोर्ट [Issues](https://github.com/adriadam10/mkw-recomp/issues)
-में, सवाल [Discussions](https://github.com/adriadam10/mkw-recomp/discussions) में।
+देखें [CONTRIBUTING.md](CONTRIBUTING.md)। बग और प्रदर्शन रिपोर्ट [Issues](https://github.com/seriouschiz/kar-recomp/issues)
+में, सवाल [Discussions](https://github.com/seriouschiz/kar-recomp/discussions) में।

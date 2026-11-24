@@ -4,8 +4,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        One idea per discussion, please. Search the [earlier ideas](https://github.com/adriadam10/mkw-recomp/discussions/categories/ideas) first and add to one if it is already there.
-        Not here: online play, which lives in separate projects ([FAQ](https://github.com/adriadam10/mkw-recomp/wiki/FAQ#online-play)), and game versions other than 1.0.0 and 1.8.0.
+        One idea per discussion, please. Search the [earlier ideas](https://github.com/seriouschiz/kar-recomp/discussions/categories/ideas) first and add to one if it is already there.
+        Not here: online play, which lives in separate projects ([FAQ](https://github.com/seriouschiz/kar-recomp/wiki/FAQ#online-play)), and game versions outside those supported by this project.
   - type: checkboxes
     attributes:
       label: Before posting

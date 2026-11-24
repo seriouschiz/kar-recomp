@@ -5,26 +5,26 @@
 <h1 align="center">mkw-recomp</h1>
 
 <p align="center">
-  <b>Mario Kart World (Nintendo Switch 2), rekompiliert, um nativ unter Linux und Windows zu laufen.</b>
+  <b>Kirby Air Riders (Nintendo Switch 2), rekompiliert, um nativ unter Linux und Windows zu laufen.</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/adriadam10/mkw-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Windows-0078d6?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Windows"></a>
-  <a href="https://github.com/adriadam10/mkw-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Linux_%28AppImage%29-e95420?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Linux (AppImage)"></a>
-  <a href="https://github.com/adriadam10/mkw-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Linux_ARM-8957e5?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Linux ARM"></a>
+  <a href="https://github.com/seriouschiz/kar-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Windows-0078d6?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Windows"></a>
+  <a href="https://github.com/seriouschiz/kar-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Linux_%28AppImage%29-e95420?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Linux (AppImage)"></a>
+  <a href="https://github.com/seriouschiz/kar-recomp/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-neueste_f%C3%BCr_Linux_ARM-8957e5?style=for-the-badge&labelColor=1b2740" alt="Download: neueste für Linux ARM"></a>
 </p>
 
 <p align="center">
-  <b><a href="https://github.com/adriadam10/mkw-recomp/releases">Releases</a></b> ·
-  <b><a href="https://github.com/adriadam10/mkw-recomp/wiki">Hilfe-Wiki</a></b> ·
+  <b><a href="https://github.com/seriouschiz/kar-recomp/releases">Releases</a></b> ·
+  <b><a href="https://github.com/seriouschiz/kar-recomp/wiki">Hilfe-Wiki</a></b> ·
   <b><a href="https://discord.gg/8uYBkjQkEg">Änderungen</a></b> ·
   <a href="../../CHANGELOG.md">Mitwirken</a> ·
   <a href="../../CONTRIBUTING.md">Quellen</a> ·
   <a href="../../docs/project/research.md#sources">Roadmap</a> ·
   <a href="../../docs/project/roadmap.md">Leistung</a> ·
   <a href="../../docs/project/performance.md">Issues</a> ·
-  <a href="https://github.com/adriadam10/mkw-recomp/issues">Discussions</a> ·
-  <a href="https://github.com/adriadam10/mkw-recomp/discussions">Archiv</a>
+  <a href="https://github.com/seriouschiz/kar-recomp/issues">Discussions</a> ·
+  <a href="https://github.com/seriouschiz/kar-recomp/discussions">Archiv</a>
 </p>
 
 <!-- i18n-bar:start -->
@@ -40,7 +40,7 @@
 </p>
 <!-- i18n-bar:end -->
 
-Eine statische Rekompilierung von *Mario Kart World* (Nintendo Switch 2, Versionen 1.0.0 und 1.8.0) zu einem nativen
+Eine statische Rekompilierung von *Kirby Air Riders* (Nintendo Switch 2, Versionen 1.0.0 und 1.8.0) zu einem nativen
 PC-Programm für Linux und Windows. Du brauchst deine eigene Kopie des Spiels, von deiner eigenen Konsole gedumpt:
 nichts vom Spiel steckt in diesem Repository oder in seinen Releases.
 
@@ -78,7 +78,7 @@ Die wichtigsten offenen Arbeiten, der Reihe nach; die Details stehen in [docs/ro
 - **Keine GPU-Hänger** und weniger Grafikspeicher, dann Laden ohne Ruckler und ein Linux-Paket für Distributionen ohne
   Rolling Release.
 - **1.8.0 gleichauf mit 1.0.0**: Ultrawide-Seitenverhältnis, Größe der Shadow-Map und fester Seed
-  ([#19](https://github.com/adriadam10/mkw-recomp/issues/19)).
+  ([#19](https://github.com/seriouschiz/kar-recomp/issues/19)).
 
 \* Gemessen am 09.11.2026 auf unserem Testrechner: Radeon-660M-APU (Ryzen 5 7535HS), Linux, interne Auflösung 720p.
 
@@ -86,7 +86,7 @@ Die wichtigsten offenen Arbeiten, der Reihe nach; die Details stehen in [docs/ro
 
 Gemessene Frame-Zeiten, jeweils mit der Version, auf der sie liefen, stehen in [docs/performance.md](../../docs/project/performance.md).
 Um deinen Rechner hinzuzufügen, öffne einen
-[Performance-Bericht](https://github.com/adriadam10/mkw-recomp/issues/new?template=performance.yml): er kommt mit der
+[Performance-Bericht](https://github.com/seriouschiz/kar-recomp/issues/new?template=performance.yml): er kommt mit der
 gemeldeten Version in die Tabelle. Die Zeiten sind die eigenen Frames des Spiels: Frame-Generierung zeigt mehr Frames,
 macht sie aber nicht kürzer. 16,7 ms sind 60 fps; Bildrate auf Automatisch (wie auf der Konsole) fällt auf 30 fps, wenn
 60 nicht erreichbar sind, und ein Frame über 33,3 ms lässt das Rennen langsamer als in Echtzeit laufen.
@@ -103,18 +103,18 @@ macht sie aber nicht kürzer. 16,7 ms sind 60 fps; Bildrate auf Automatisch (wie
 
 ## Spielen
 
-> **Hängst du fest oder hast eine Frage?** Schau zuerst im [Wiki](https://github.com/adriadam10/mkw-recomp/wiki) nach:
+> **Hängst du fest oder hast eine Frage?** Schau zuerst im [Wiki](https://github.com/seriouschiz/kar-recomp/wiki) nach:
 > Installation, Einstellungen, Steuerung,
-> [bekannte Fehler nach ihrer Log-Zeile](https://github.com/adriadam10/mkw-recomp/wiki/Troubleshooting) und eine
-> [FAQ](https://github.com/adriadam10/mkw-recomp/wiki/FAQ) (auf Englisch).
+> [bekannte Fehler nach ihrer Log-Zeile](https://github.com/seriouschiz/kar-recomp/wiki/Troubleshooting) und eine
+> [FAQ](https://github.com/seriouschiz/kar-recomp/wiki/FAQ) (auf Englisch).
 
 ![Der Startbildschirm, wenn das Spiel eingerichtet ist](../../docs/images/launcher-main.png)
 
 ![Die Seite Spieldateien, auf der die Einrichtung den Dump des Spielers übernimmt](../../docs/images/launcher-files.png)
 
-1. Dumpe Mario Kart World 1.0.0 oder 1.8.0 von deiner Switch 2 (`exefs/` und `romfs/`, entschlüsselt; bei 1.8.0 mit dem
+1. Dumpe Kirby Air Riders 1.0.0 oder 1.8.0 von deiner Switch 2 (`exefs/` und `romfs/`, entschlüsselt; bei 1.8.0 mit dem
    Update in die RomFS des Grundspiels eingespielt), oder denselben Dump gepackt als eine `.nup`- oder `.nx`-Datei.
-2. Lade den Launcher für dein System von den [Releases](https://github.com/adriadam10/mkw-recomp/releases) herunter:
+2. Lade den Launcher für dein System von den [Releases](https://github.com/seriouschiz/kar-recomp/releases) herunter:
    unter Linux das `.AppImage` (`-aarch64` auf ARM; der Standard-Spielordner ist `~/.local/share/mkw-recomp`; glibc 2.31
    oder neuer: Debian 11, Ubuntu 20.04, SteamOS und neuer), unter Windows die `.zip`, entpackt in einen Ordner. Beide
    brauchen etwa 30 GB freien Platz.
@@ -181,7 +181,7 @@ Switch2Connect). Rückgängig machen: im Geräte-Manager das Gerät dieser Schni
 Die Seite **Mods** des Startbildschirms installiert Mods so, wie sie für das Spiel veröffentlicht werden, und listet sie
 in zwei Tabs:
 
-- **Auf GameBanana suchen**: die Mods für Mario Kart World auf [GameBanana](https://gamebanana.com/games/22152),
+- **Auf GameBanana suchen**: die Mods für Kirby Air Riders auf [GameBanana](https://gamebanana.com/games/22152),
   gelistet oder durchsucht, mit Autor, Lizenz, Screenshots und Beschreibung jedes Mods. **Installieren** lädt die Datei
   von GameBanana herunter, nur wenn du darum bittest.
 - **Installiert**: deine Mods, jeder mit einem An/Aus-Schalter; **Zip importieren / Ordner importieren** übernimmt einen
@@ -279,7 +279,7 @@ ihm liegt (`LICENSE.*`-Dateien in [recomp/](../../recomp/), [runtime/](../../run
 stb_image, AMD FidelityFX FSR 1 und Roboto. Jede verwendete Quelle, mit ihrer Lizenz und dem, was daraus übernommen
 wurde (Code nur aus MIT-Projekten; aus GPL-Projekten nur Ideen), steht in [docs/research.md](../../docs/project/research.md#sources).
 
-Mario Kart World ist © Nintendo. Dieses Projekt ist nicht mit Nintendo verbunden oder von Nintendo unterstützt, enthält
+Kirby Air Riders ist © Nintendo. Dieses Projekt ist nicht mit Nintendo verbunden oder von Nintendo unterstützt, enthält
 keinen Code und keine Assets des Spiels und hilft nicht, sie zu beschaffen.
 
 Mods gehören ihren Autoren und stehen unter ihren eigenen Lizenzen. Dieses Projekt ist nicht mit GameBanana oder dem
@@ -290,5 +290,5 @@ einen Mod von GameBanana herunter, wenn du ihn darum bittest.
 ## Mitwirken
 
 Siehe [CONTRIBUTING.md](../../CONTRIBUTING.md). Fehler und Performance-Berichte gehören in die
-[Issues](https://github.com/adriadam10/mkw-recomp/issues), Fragen in die
-[Discussions](https://github.com/adriadam10/mkw-recomp/discussions).
+[Issues](https://github.com/seriouschiz/kar-recomp/issues), Fragen in die
+[Discussions](https://github.com/seriouschiz/kar-recomp/discussions).

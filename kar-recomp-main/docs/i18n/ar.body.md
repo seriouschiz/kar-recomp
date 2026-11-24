@@ -1,4 +1,4 @@
-إعادة تجميع ثابتة للعبة *Mario Kart World* (‏Nintendo Switch 2، الإصداران 1.0.0 و1.8.0) إلى برنامج أصلي للحاسوب يعمل على
+إعادة تجميع ثابتة للعبة *Kirby Air Riders* (‏Nintendo Switch 2، الإصداران 1.0.0 و1.8.0) إلى برنامج أصلي للحاسوب يعمل على
 Linux وWindows. تحتاج إلى نسختك الخاصة من اللعبة، مستخرجة من جهازك أنت: لا يوجد أي شيء من اللعبة في هذا المستودع ولا في
 إصداراته.
 
@@ -31,7 +31,7 @@ AArch64 على Linux)؛ لا يوجد مفسّر ولا JIT للمعالج. ول
 - **فحص كل القوائم** مقارنةً بالجهاز: التالي هو الوضع واختيار الشخصية والمركبة.
 - **لا تجمّد للـ GPU** وذاكرة رسوميات أقل، ثم تحميل بلا تقطّع وحزمة Linux للتوزيعات غير المتجددة باستمرار.
 - **الإصدار 1.8.0 على قدم المساواة مع 1.0.0**: نسبة العرض فائقة الاتساع، وحجم خريطة الظلال، والبذرة الثابتة
-  ([#19](https://github.com/adriadam10/mkw-recomp/issues/19)).
+  ([#19](https://github.com/seriouschiz/kar-recomp/issues/19)).
 
 \* قيس في 09/11/2026 على جهاز الاختبار لدينا: معالج Radeon 660M المدمج (Ryzen 5 7535HS)، ‏Linux، دقة داخلية 720p.
 
@@ -40,7 +40,7 @@ AArch64 على Linux)؛ لا يوجد مفسّر ولا JIT للمعالج. ول
 ## الأداء
 
 أزمنة الإطارات المقيسة، كل منها بالإصدار الذي اختُبر، موجودة في [docs/project/performance.md](docs/project/performance.md). لإضافة جهازك، افتح
-[تقرير أداء](https://github.com/adriadam10/mkw-recomp/issues/new?template=performance.yml): يدخل الجدول بالإصدار المذكور فيه. هذه
+[تقرير أداء](https://github.com/seriouschiz/kar-recomp/issues/new?template=performance.yml): يدخل الجدول بالإصدار المذكور فيه. هذه
 الأزمنة هي إطارات اللعبة نفسها: توليد الإطارات يعرض إطارات أكثر لكنه لا يقصّرها. ‏16.7 ms تعني 60 إطارًا في الثانية؛ ومع ضبط
 Frame rate على Automatic (كما في الجهاز) ينخفض إلى 30 إطارًا عندما يتعذر بلوغ 60، والإطار الذي يتجاوز 33.3 ms يجعل السباق
 أبطأ من الزمن الحقيقي.
@@ -61,9 +61,9 @@ Frame rate على Automatic (كما في الجهاز) ينخفض إلى 30 إط
 
 ![صفحة Game files، حيث يأخذ التجهيز نسخة اللاعب المستخرجة](docs/images/launcher-files.png)
 
-1. استخرج Mario Kart World 1.0.0 أو 1.8.0 من جهاز Switch 2 الخاص بك (`exefs/` و`romfs/`، بعد فك تشفيرهما؛ والإصدار 1.8.0
+1. استخرج Kirby Air Riders 1.0.0 أو 1.8.0 من جهاز Switch 2 الخاص بك (`exefs/` و`romfs/`، بعد فك تشفيرهما؛ والإصدار 1.8.0
    مع دمج التحديث في RomFS اللعبة الأساسية)، أو النسخة نفسها مجمّعة في ملف واحد `.nup` أو `.nx`.
-2. نزّل المشغّل لنظامك من [الإصدارات](https://github.com/adriadam10/mkw-recomp/releases): على Linux ملف `.AppImage`
+2. نزّل المشغّل لنظامك من [الإصدارات](https://github.com/seriouschiz/kar-recomp/releases): على Linux ملف `.AppImage`
    (‏`-aarch64` على ARM؛ مجلد اللعبة الافتراضي هو `~/.local/share/mkw-recomp`؛ يتطلب glibc 2.31 أو أحدث: Debian 11 وUbuntu
    20.04 وSteamOS وما بعدها)، وعلى Windows ملف `.zip` بعد فك ضغطه في مجلد. يحتاج كلاهما إلى نحو 30 GB من المساحة الحرة.
 3. شغّل ملف AppImage (بعد `chmod +x`) أو `mkw.exe`، وافتح **Game files**، واختر إن شئت عبر **Choose game folder** مكان
@@ -118,7 +118,7 @@ Frame rate على Automatic (كما في الجهاز) ينخفض إلى 30 إط
 
 تثبّت صفحة **Mods** في شاشة البدء التعديلات كما تُنشر للعبة، وتعرضها في تبويبين:
 
-- **Find on GameBanana**: تعديلات Mario Kart World على [GameBanana](https://gamebanana.com/games/22152)، معروضة أو مبحوث
+- **Find on GameBanana**: تعديلات Kirby Air Riders على [GameBanana](https://gamebanana.com/games/22152)، معروضة أو مبحوث
   عنها، مع مؤلف كل تعديل وترخيصه ولقطات شاشته ووصفه. ينزّل **Install** الملف من GameBanana، فقط عندما تطلب ذلك.
 - **Installed**: تعديلاتك، لكل منها مفتاح تشغيل وإيقاف؛ ويأخذ **Import zip / Import folder** تعديلًا لديك بالفعل (`.zip` أو
   `.rar` أو `.7z`، يحتوي `romfs/` و/أو `exefs/` في أي مكان بداخله، بما في ذلك بنية `atmosphere/contents/`).
@@ -201,7 +201,7 @@ build/mkw
 ‏totk-pc-recomp وnvsass-disassembler وDear ImGui وbc7enc وstb_image وAMD FidelityFX FSR 1 وRoboto. وكل مصدر استُخدم، مع ترخيصه
 وما أُخذ منه (الكود من مشاريع MIT فقط؛ ومن مشاريع GPL الأفكار فقط)، مذكور في [docs/project/research.md](docs/project/research.md#sources).
 
-‏Mario Kart World ‏© Nintendo. هذا المشروع غير تابع لـ Nintendo ولا معتمد منها، ولا يحتوي على أي كود أو أصول من اللعبة، ولا
+‏Kirby Air Riders ‏© Nintendo. هذا المشروع غير تابع لـ Nintendo ولا معتمد منها، ولا يحتوي على أي كود أو أصول من اللعبة، ولا
 يساعد في الحصول عليها.
 
 التعديلات ملك لمؤلفيها وتخضع لتراخيصها الخاصة. هذا المشروع غير تابع لـ GameBanana ولا لأي مؤلف تعديل ولا معتمد منهم، ولا
@@ -210,5 +210,5 @@ build/mkw
 
 ## المساهمة
 
-انظر [CONTRIBUTING.md](CONTRIBUTING.md). الأخطاء وتقارير الأداء إلى [Issues](https://github.com/adriadam10/mkw-recomp/issues)،
-والأسئلة إلى [Discussions](https://github.com/adriadam10/mkw-recomp/discussions).
+انظر [CONTRIBUTING.md](CONTRIBUTING.md). الأخطاء وتقارير الأداء إلى [Issues](https://github.com/seriouschiz/kar-recomp/issues)،
+والأسئلة إلى [Discussions](https://github.com/seriouschiz/kar-recomp/discussions).

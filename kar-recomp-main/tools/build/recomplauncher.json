@@ -1,8 +1,8 @@
 {
   "$schema": "https://recomplauncher.com/schema/recomplauncher.json",
   "format": 1,
-  "name": "Mario Kart World Recompiled",
-  "repo": "adriadam10/mkw-recomp",
+  "name": "Kirby Air Riders Recompiled",
+  "repo": "seriouschiz/kar-recomp",
   "start": {
     "program": ["mkw.exe", "mkw"]
   },

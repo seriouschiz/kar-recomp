@@ -224,7 +224,7 @@ static bool pad_power(int i, InputPower *w, char *text, int size) {
 // The GitHub repository the releases and the issues are in: MKW_UPDATE_REPO (tests, forks), else upstream's.
 static const char *repo(void) {
     const char *r = getenv("MKW_UPDATE_REPO");
-    return r && *r ? r : "adriadam10/mkw-recomp";
+    return r && *r ? r : "seriouschiz/kar-recomp";
 }
 
 // Whether a GPU here can run the game (vk_gpu_check.h): the setup takes many minutes and the game's window used to
@@ -535,7 +535,7 @@ static void make_shortcut(void) {
     const char *appimage = getenv("APPIMAGE");
     if (appimage && *appimage && strlen(appimage) < sizeof exe) snprintf(exe, sizeof exe, "%s", appimage);
     else if (!plat_exe_path(exe, sizeof exe)) return;
-    int ok = plat_desktop_shortcut("Mario Kart World", exe, L.exe_dir, made, sizeof made);
+    int ok = plat_desktop_shortcut("Kirby Air Riders", exe, L.exe_dir, made, sizeof made);
     snprintf(L.shortcut_note, sizeof L.shortcut_note, menu_text(ok ? UI_LAUNCH_SHORTCUT_DONE : UI_LAUNCH_SHORTCUT_FAILED),
              made);
     rt_log("launcher: desktop shortcut %s %s", ok ? "made:" : "failed", ok ? made : "");
@@ -618,14 +618,14 @@ static void steam_add(void) { L.steam_art = 1; }
 enum { ART_PORTRAIT, ART_WIDE, ART_HERO, ART_LOGO, ART_ICON };
 
 // The width of art_header's logo and title at logo m px and title t px.
-static float art_header_w(float m, float t) { return m * 1.28f + L.big->CalcTextSizeA(t, FLT_MAX, 0, "Mario Kart World").x; }
+static float art_header_w(float m, float t) { return m * 1.28f + L.big->CalcTextSizeA(t, FLT_MAX, 0, "Kirby Air Riders").x; }
 
 // The port's logo and the title, as the main page's header, its top left at p: the logo m px, the title t px.
 static void art_header(ImDrawList *dl, ImVec2 p, float m, float t, bool sub) {
     launcher_logo(dl, p, m);
     float x = p.x + m + m * 0.28f, sh = t * 0.42f, gap = t * 0.08f, th = t + (sub ? gap + sh : 0);
     float y = p.y + (m - th) * 0.5f;
-    dl->AddText(L.big, t, ImVec2(x, y), LOOK_TEXT, "Mario Kart World");
+    dl->AddText(L.big, t, ImVec2(x, y), LOOK_TEXT, "Kirby Air Riders");
     if (sub) dl->AddText(nullptr, sh, ImVec2(x + t * 0.03f, y + t + gap), LOOK_HEADING, menu_text(UI_LAUNCH_SUBTITLE));
 }
 
@@ -651,8 +651,8 @@ static bool art_one(int kind, int w, int h, const char *path) {
         dl->AddRectFilledMultiColor(ImVec2(0, fh * 0.45f), ImVec2(fw, fh), none, none, dark, dark);
         float m = fw * 0.34f, t = fw * 0.105f;
         launcher_logo(dl, ImVec2((fw - m) * 0.5f, fh * 0.50f), m);
-        ImVec2 ts = L.big->CalcTextSizeA(t, FLT_MAX, 0, "Mario Kart World");
-        dl->AddText(L.big, t, ImVec2((fw - ts.x) * 0.5f, fh * 0.50f + m + t * 0.35f), LOOK_TEXT, "Mario Kart World");
+        ImVec2 ts = L.big->CalcTextSizeA(t, FLT_MAX, 0, "Kirby Air Riders");
+        dl->AddText(L.big, t, ImVec2((fw - ts.x) * 0.5f, fh * 0.50f + m + t * 0.35f), LOOK_TEXT, "Kirby Air Riders");
         const char *sub = menu_text(UI_LAUNCH_SUBTITLE);
         float st = t * 0.42f;
         ImVec2 ss = ImGui::GetFont()->CalcTextSizeA(st, FLT_MAX, 0, sub);
@@ -708,7 +708,7 @@ static void steam_art_draw(void) {
     }   // the next frame's restyle puts the window's own scale back
     rt_log("launcher: Steam's library images drawn: %d of 5 in %s", drawn, dir);
     if (!shortcut_target(exe, sizeof exe)) return;
-    const char *args[] = {"add", "--name", "Mario Kart World", "--exe", exe, "--dir", L.exe_dir,
+    const char *args[] = {"add", "--name", "Kirby Air Riders", "--exe", exe, "--dir", L.exe_dir,
                           drawn == 5 ? "--art" : nullptr, dir, nullptr};
     tool_start(L.exe_dir, JOB_STEAM, "prepare/steam.py", args);
 }
@@ -925,7 +925,7 @@ static void page_main(float w, float h) {
     int v0 = dl->VtxBuffer.Size;
     launcher_logo(dl, p, mark);
     float ts = L.big->FontSize, tx = p.x + mark + 24 * s, by = p.y + (mark - ts - 4 * s - lh) * 0.5f;
-    dl->AddText(L.big, ts, ImVec2(tx, by - ts * 0.06f), LOOK_TEXT, "Mario Kart World");
+    dl->AddText(L.big, ts, ImVec2(tx, by - ts * 0.06f), LOOK_TEXT, "Kirby Air Riders");
     dl->AddText(ImVec2(tx, by + ts + 4 * s), LOOK_HEADING, menu_text(UI_LAUNCH_SUBTITLE));
     intro_apply(dl, v0, intro(0));
     ImGui::Dummy(ImVec2(cw, mark + 48 * s - gap));
@@ -1301,7 +1301,7 @@ static void found_copies(void) {
                          : !strcmp(f[i].kind, "nx")     ? ".nx"
                                                         : ".nup";
         char label[sizeof f[i].path + 96];
-        snprintf(label, sizeof label, "Mario Kart World %s  \xc2\xb7  %s  \xc2\xb7  %s##found%d", f[i].version, kind,
+        snprintf(label, sizeof label, "Kirby Air Riders %s  \xc2\xb7  %s  \xc2\xb7  %s##found%d", f[i].version, kind,
                  f[i].path, i);
         if (ImGui::Selectable(label, !strcmp(L.source, f[i].path))) snprintf(L.source, sizeof L.source, "%s", f[i].path);
     }
@@ -2010,7 +2010,7 @@ static bool open_window(void) {
         float fit = SDL_min(0.9f * usable.w / w, 0.9f * usable.h / h);
         if (fit < 1) w = (int)(w * fit), h = (int)(h * fit);
     }
-    L.win = SDL_CreateWindow("Mario Kart World", w, h, f);
+    L.win = SDL_CreateWindow("Kirby Air Riders", w, h, f);
     if (L.win) app_icon_set(L.win);
     L.ren = L.win ? SDL_CreateRenderer(L.win, nullptr) : nullptr;
     if (!L.ren) {

@@ -5,9 +5,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Look up the last lines of `logs/mkw.log` in the wiki's [Troubleshooting](https://github.com/adriadam10/mkw-recomp/wiki/Troubleshooting) page and search open and closed issues for the error text first; comment there if it is already reported.
-        Only Mario Kart World 1.0.0 or 1.8.0 dumped from your own console is supported; issues about obtaining the game are closed.
-        A slow scene goes into the [Performance report](https://github.com/adriadam10/mkw-recomp/issues/new?template=performance.yml) form.
+        Look up the last lines of `logs/mkw.log` in the wiki's [Troubleshooting](https://github.com/seriouschiz/kar-recomp/wiki/Troubleshooting) page and search open and closed issues for the error text first; comment there if it is already reported.
+        Only Kirby Air Riders builds supported by this project are accepted, and they must be dumped from your own console; issues about obtaining the game are closed.
+        A slow scene goes into the [Performance report](https://github.com/seriouschiz/kar-recomp/issues/new?template=performance.yml) form.
   - type: input
     id: summary
     attributes:

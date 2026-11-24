@@ -1,126 +1,118 @@
-# Roadmap
+# Kirby Air Riders Roadmap
 
-What is being worked on, in order of priority: nothing may hang the GPU, then the picture as on the console (menus
-before races), then the frame rate, then the player's side. Updated 17/11/2026.
+Updated 23 November 2026.
 
-## 1. 60 fps in races: the serial frame
+This roadmap orders the work as small, reviewable milestones, with clear evidence for when each one is done. The current
+checkout still has Mario Kart World assumptions in its build target, version tables, patches, and documentation. Treat
+those as inherited scaffolding; carry pieces forward only after verifying they apply to Kirby Air Riders. The tracked
+project docs do not yet establish KAR's executable version, module layout, graphics interface, or startup requirements.
 
-A race frame takes 31-33 ms\* on the Radeon 660M at 720p, against the 16.7 ms the game asks for. The time does not go
-to one slow piece but to a chain where each step waits for the previous one (measured with `MKW_TRACE_TL`):
+## How to work through it
 
-| Step | Time\* |
-|---|---|
-| The game runs its frame, from the release of the previous frame's fence to its last submit | ~3.4 ms |
-| The Vulkan back end records that submit into command buffers, on the replay thread | ~19 ms |
-| The GPU runs what was submitted last | ~9.7 ms |
-| Completion work before the game is released for the next frame | ~1.5 ms |
+- **P0** establishes the target facts and removes inherited defaults. **P1** reaches the first playable local slice.
+  **P2** broadens support and prepares a release. Follow the order below; it reflects dependencies, not calendar dates.
+- Keep each change to one observable outcome, with the affected KAR version and a reproducer or validation step.
+- Prefer a complete vertical slice over broad placeholder support: identify a need from a trace or comparison, implement
+  that need, then verify the same path.
+- Store generated game-dependent output under `build/`. Do not commit game files, assets, generated code or shaders, or
+  game screenshots. Work only with already-decrypted local files; do not add key handling or decryption. Do not implement
+  Nintendo online services. Reused code must have a compatible license and a source citation.
+- Before any game run, state the diagnostic purpose and expected outcomes. Get approval unless that run was already
+  authorized.
 
-The game's big submit only reaches the back end at the end of its frame, and the GPU cannot start until it is
-recorded, so recording is on the critical path: every millisecond saved there is a millisecond off the frame, down to
-~21 ms, where the GPU (busy ~20 ms) takes over. Spreading the same CPU work over more threads does not help by
-itself; recording with less CPU does. Tried and dropped: reusing a draw's recording across frames (same image, but
-+4.3 ms of CPU a frame: the draws that repeat are already the cheap ones). Already done: recording overlapped
-with the game (−2.4 ms), submits on their own thread (−1.2 to −1.6 ms), the shadow copies off the replay thread
-(−0.8 ms), the replay thread on its own core (−1.1 ms), dynamic state recorded only when it changes (idea from
-totk-pc-recomp, MIT; −10.6 % recorder instructions on Steam Deck; no measurable frame-time change). Next:
+## P0 — Establish the KAR baseline
 
-- **AMD GPU clocks on Linux** (done, `MKW_GPU_CLOCKS`): amdgpu judges a GPU's clock by how busy it is, and this
-  chain keeps it half idle, so it stayed at its lowest clock (500 of 2855 MHz on an RX 6700 XT, 2560x1440: races at
-  23-42 ms a frame). Held at the peak stable pstate: 16.7-17.2 ms, -15.1 ms a frame (medians, in-run A/B and its
-  inverted twin, 17/11/2026). Integrated GPUs (Steam Deck, the 660M) are left to amdgpu: on the 660M the peak made the
-  race 1.9 ms a frame slower, its GPU faster but the CPU, which shares the chip's power, slower (in-run A/B, 17/11/2026).
-  It also explains #496 (`MKW_QUEUE_WAITS` costing 60 → 50 fps on a 7900 XT): +15.3 ms a frame with amdgpu's clock,
-  +0.01 ms with it held.
-- **Less work per draw**: descriptor sets kept across frames by their contents (`MKW_DRAW_CACHE`). On a fast CPU
-  (i7-14700F, RADV) it changes nothing measurable: a race capture's recording thread ran the same instructions with
-  it on and off, and its binds made ~20 % more descriptor work (sets are allocated) (16/11/2026); left for slower CPUs.
-- **Recording in parallel**: chunks of a submit on several threads; today they fight over the texture lock, which has
-  to be split first.
-- **The fence's completion work**: before the game is released for the next frame, the completion thread writes back
-  what the GPU wrote into guest memory (`merge_back`, `MKW_WB_CENSUS`): 2.6 ms of a 2-player race frame on an
-  i7-14700F. Compared 64 bytes at a time with AVX2 (`MKW_MERGE_SIMD`), 1.5-1.7 ms, and the waiters released 1.0 ms
-  sooner (in-run A/B and its inverted twin, 18/11/2026; the frame −0.5 ms, at the 60 fps cap). Left: the 1-4 MiB
-  ranges the GPU leaves alone (~0.5 ms a frame of `memcmp`), and the rest could run on other threads.
-- **The kernel's global lock**: waits by address are done (−1.3 ms\*); the rest of the lock remains.
-- **Hybrid CPUs** (`MKW_FAST_CORES`, #490 by @AngeloAscheri): on Linux the frame's threads stay on the fast cores
-  and background work (pipeline builds, prewarming, video) on all of them; on an i7-14700F at a fixed 60 fps, races
-  went from 12 of 34 windows over 17.5 ms to none (in-run A/B and its inverted twin, 17/11/2026). Still to do:
-  - **Windows**: off by default, never measured there. `SetProcessAffinityMask` bounds every thread, so the
-    background threads would lose the efficiency cores too (`plat_thread_background` does nothing there); it needs a
-    per-thread placement (CPU Sets, or each frame thread's own mask) and then the same A/B on a hybrid CPU.
-  - **Few P-cores**: on by default only with 8 fast processors left besides the replay core, a hypothesis; no CPU
-    with 2-4 P-cores (i5-1235U, Lunar Lake, Ryzen AI 9 HX 370) has been measured either way.
-  - `vk submit` and `vk present` started on the replay thread after it pinned itself and shared its processor; now
-    with the frame's threads (`MKW_SUBMIT_APART`): a part waits 11-13 us for its `vkQueueSubmit2` instead of 34-39,
-    and the replay thread sends 1.5-2.3 % of the parts itself instead of 9-10 % (in-run A/B and its inverted twin,
-    i7-14700F, 18/11/2026). The frame the same there, at the 60 fps cap; a CPU-bound machine (the 660M) to measure.
+These tasks remove uncertainty that would otherwise make every later change guesswork.
 
-  A warning for whoever measures this (16/11/2026): every race up to 17:31 took 38-41 ms a frame and every one from
-  17:33 on 19-22 ms, with no change to the code; that was the GPU clock (the item above), and comparing a `taskset`
-  run of one period with an unpinned run of the other first gave a 2x effect that was not there. Compare inside one
-  run (`MKW_AB`).
-- **The game thread**: the generated C at `-O1`, with profile-guided optimization next (12-15 % in totk-pc-recomp).
+- [ ] **Record the first supported target version.** Inspect the available local game files and record the version,
+  required input layout, module names, and any version-specific differences as text. Do not infer these from MKW's
+  version tables. Fail clearly when the input is incomplete or unsupported.
+- [ ] **Separate KAR identity from inherited MKW configuration.** Add a KAR-specific target profile for version selection,
+  patch data, and generated-output paths. Keep shared runtime code behind game-neutral interfaces where practical. A KAR
+  build must never silently select an MKW patch table or generated directory.
+- [ ] **Make the host target identify itself as KAR.** Update executable naming, launcher identity, logs, settings paths,
+  and package names together. Preserve an explicit migration path for user settings if the storage location changes.
 
-\* Our numbers (not the ones said to come from totk-pc-recomp) were measured on 07-09/11/2026 on our test machine:
-Radeon 660M APU (Ryzen 5 7535HS), Linux, 720p internal resolution.
+**Done when:** a clean checkout identifies the selected KAR target version, rejects unsupported input with an actionable
+message, and keeps all generated output under `build/` without using MKW defaults.
 
-Two defaults of the test runs mislead on another machine (16/11/2026): `run_perf.sh` caps the GPU heap at 4096 MiB
-(`MKW_GPU_MEM_LIMIT`, set for the 660M), and on a 12 GB RX 6700 XT the race then took 59 ms a frame against 39-43 ms
-without the cap (sl-base, sl-nocap: two separate runs, both with the GPU at its lowest clock, before `MKW_GPU_CLOCKS`;
-not measured with the clock held); and `race.sh`'s 720p needs the RomFS overlay `build/romfs-res`
-(`tools/romfs/resolution.py`): without it the log says "RomFS overlay: none" and a 1.8.0 race renders at 2560x1440
-with a 3840x2160 output. Players have neither: no cap, the game's resolution.
+## P1 — Reproducible setup and translation
 
-## 2. The picture as on the console
+- [ ] **Prove one end-to-end generation path.** Run the existing translation approach against one verified KAR target,
+  compile the generated output, and keep all game-dependent output out of version control.
+- [ ] **Make setup failures diagnosable.** Report which input, module, translation step, or compiler failed, and retain
+  enough local logs to reproduce the failure without exposing game content.
+- [ ] **Add small regression checks for the target profile.** Cover version selection, missing files, unsupported
+  versions, and output-directory boundaries using fixtures that contain no game data.
 
-- Shader translator bugs found by comparing with another Switch 2 port: three of six fixed, three to go, each
-  reapplied alone and checked on a race capture.
-- The kart's shadow misses a frame now and then; two fixes from Ryujinx (MIT) to try.
-- Zero Vulkan validation errors, which may be rendering bugs or hangs on other GPUs: whole runs from boot to a race,
-  one player (Grand Prix) and two (split screen), give none since the depth target left in the feedback-loop layout
-  for the first recording chunk was fixed (RX 6700 XT, RADV, 17/11/2026); photo mode and the other modes not checked.
-- Task/mesh shaders as compute: a race on the first thread in the scene lists (bushes and grass).
+**Done when:** the same supported input and toolchain produce a successful host build on a clean setup, and the profile
+checks pass without requiring game content in the test suite.
 
-## 3. Menus
+## P1 — Boot to a stable first screen
 
-From the title to the race everything is right; the mode, character and vehicle select screens still need checking
-screen by screen against the console.
+- [ ] **Trace startup from the host entry point to the first screen.** Record the first missing services and guest calls
+  from logs or the executable database; implement only the behavior startup actually reaches.
+- [ ] **Bring up the required kernel, memory, filesystem, and SDK paths.** Keep implementations narrow and add focused
+  tests for boundaries, errors, and repeated initialization.
+- [ ] **Make startup repeatable.** Verify cold launch, clean exit, and relaunch on the first supported target version.
 
-## 4. Stability and memory
+**Done when:** repeated launches reach the same first in-game screen without a crash, hang, or unresolved startup call,
+and a failure log points to the relevant module or service.
 
-- GPU hangs on AMD: upload batches already split; next, breadcrumbs and `VK_EXT_device_fault` to find the cause of the
-  remaining ones.
-- GPU memory: races run in 4 GiB with every texture; the sparse tiles above 768 MiB (the asphalt) are next.
-- Five kernel and platform bugs inherited from totk-pc-recomp (the fiber stack alignment can crash a run).
+## P1 — Render the first screen accurately
 
-## 5. Loading and the player's side
+- [ ] **Confirm KAR's graphics and shader formats from evidence.** Document the formats and runtime interface seen in the
+  target before adapting the inherited graphics backend.
+- [ ] **Render a captured reference path.** Start with the first screen and one menu transition; fix discrepancies at the
+  responsible translation or runtime layer.
+- [ ] **Build a reusable visual regression path.** Keep captures and generated graphics artifacts local, and make the
+  comparison repeatable from a clean build.
 
-- The stutter right after a race starts: block-linear deswizzle on the GPU (totk-pc-recomp, MIT: texture waits from
-  900 to 270 ms in that game), VMA reservations on Windows. Measured on an i7-14700F (16/11/2026), the CPU deswizzle
-  (`tex_bl_copy`) runs at memcpy speed (16-25 GB/s, 9.6 for a 16 MiB BC7 level), so on the GPU it only pays if the
-  GPU reads the storage from its mirror without a CPU copy. In the course load's peak (1.5 s, user call graphs of the
-  replay thread, tl-fp1) the replay spent ~66 ms in the BC1/BC7 choice for ASTC textures (`astc_alpha_one`, at image
-  creation) and ~44 ms in the deswizzle, both serial on the critical path. Both are now spread over the texture
-  workers (`tex_par.c`, `MKW_TEX_PAR`): in a Grand Prix run from boot to the race, at the same 3 328 images, the scan
-  took 215 -> 138 ms of the replay thread and the deswizzle of textures of 512 KiB or more 139 -> 77 ms (i7-14700F,
-  17/11/2026, two runs). Left: the deswizzle of the smaller ones (~85 ms over ~9 000 uploads of ~140 KiB), too small
-  to wake the workers for each; it needs uploads batched before they are split.
-- A Linux package that starts on non-rolling distributions (glibc 2.31 through zig), and the launcher tested on real
-  Windows machines.
-- Windows with a dedicated GPU: memory the GPU wrote is not uploaded again to its mirror.
-- "Detect" in the graphics settings: a preset picked from the GPU.
-- Audio: two known SDK bugs (splitters, voice 0) and cuts in the movies' audio.
+**Done when:** the first screen and selected menu transition match the reference closely enough to identify no known
+blocking visual errors, and the capture can be replayed to check future graphics changes.
 
-## 6. Later game versions
+## P1 — Complete the essential player I/O paths
 
-- Updates (issue #19): each version is a different executable, so the recompilation (function list, patches, the
-  runtime's addresses) is redone for it; the game cannot be shared, so this needs someone who owns that version to run
-  the tools on their own dump and contribute the result.
-- 1.8.0 (11/11/2026): recognised by the setup (`recomp/versions.py`), its own patch table
-  (`recomp/patches-mkw-180.txt`: spin waits, zstd, output size and every set of 1.0.0 — aspect, vertplus (the tall
-  Window's race FOV), shadow, seed and LAN play) and runtime row (`runtime/core/boot/version.c`: frame update and game
-  clock, zstd, NVN2 proc table and `nvnDeviceGetInteger` answers, boot checkpoint, the new `subsdk1` module's
-  constructors, the menu focus probe). Checked (16/11/2026): no game code calls the NVN2 procs new in its sdk (its
-  proc loader stores them and nothing reads them back, `runtime/gfx/nvn/procs/nvn2.c`); its 11 604 shader stages,
-  the 39 inside `exefs/main` included, translate to valid SPIR-V and none is missing in a title, race or photo mode
-  capture; the button icon sheet is recognised by its hash (`runtime/ui/glyphs/glyphs.c`).
+- [ ] **Controller input:** detect a connected controller, navigate the verified menu path, and test disconnect/reconnect.
+- [ ] **Audio:** reach a stable audible output path; cover startup, sustained playback, and clean shutdown.
+- [ ] **Filesystem and settings:** load required game files and demonstrate a save/settings round trip without corrupting
+  unrelated files.
+
+**Done when:** a player can use the intended input device to navigate the first supported path, hear stable audio where
+expected, and retain supported settings across a relaunch.
+
+## P1 — Deliver one playable local slice
+
+- [ ] **Choose the first mode from the verified game menus.** Record its entry path and the minimum guest services it uses.
+- [ ] **Complete one full play loop.** Boot, navigate, enter the mode, finish a round, and return to a menu using supported
+  controls.
+- [ ] **Add a mode support matrix.** Track tested entry paths and known failures; add more modes one at a time.
+
+**Done when:** the first documented local mode completes repeatedly on the supported target version, with input,
+rendering, audio, and return-to-menu behavior all checked.
+
+## P2 — Stability, compatibility, and performance
+
+- [ ] **Fix hangs and crashes before tuning speed.** Reproduce each failure with the smallest useful trace or capture and
+  add a regression check where possible.
+- [ ] **Build a compatibility matrix.** Record tested operating systems, GPUs, drivers, controllers, and game versions;
+  distinguish tested combinations from expected support.
+- [ ] **Measure representative gameplay before optimizing.** Establish repeatable frame-time and load-time baselines,
+  identify the critical path, and make one measured change at a time.
+- [ ] **Check graphics correctness across the matrix.** Use validation output and final-frame comparisons on supported
+  configurations.
+
+**Done when:** the documented supported configurations complete the playable slice without known hangs or correctness
+regressions, and each performance claim has a reproducible baseline.
+
+## P2 — Package for players and contributors
+
+- [ ] **Make setup understandable.** Explain the accepted local input format, required free space, supported version,
+  and where generated files are stored.
+- [ ] **Produce clean platform packages.** Verify install, launch, update, and uninstall behavior without bundling any
+  game content.
+- [ ] **Document support and reporting.** Keep known issues, tested configurations, and useful log locations current;
+  ensure reports do not ask users to upload game files.
+
+**Done when:** a new user can set up their own supported local files, launch the verified playable slice, and produce a
+useful bug report from a packaged build.

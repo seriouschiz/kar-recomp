@@ -374,8 +374,8 @@ static void lock_profile(void) {
     char p[4200];
     snprintf(p, sizeof p, "%s/instance.lock", rt_config()->profile_base);
     if (plat_file_lock(p)) return;   // -1 (cannot open it): played as before, without the guard
-    const char *msg = "Mario Kart World is already running from this folder. Close it before starting it again.";
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "mkw-recomp", msg, NULL);
+    const char *msg = "Kirby Air Riders is already running from this folder. Close it before starting it again.";
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "kar-recomp", msg, NULL);
     rt_fatal("boot: %s (%s is held)", msg, p);
 }
 

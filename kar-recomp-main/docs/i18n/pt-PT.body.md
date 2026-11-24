@@ -1,4 +1,4 @@
-Uma recompilação estática de *Mario Kart World* (Nintendo Switch 2, versões 1.0.0 e 1.8.0) num programa nativo de
+Uma recompilação estática de *Kirby Air Riders* (Nintendo Switch 2, versões 1.0.0 e 1.8.0) num programa nativo de
 PC para Linux e Windows. Precisa da sua própria cópia do jogo, extraída da sua própria consola: nada do jogo está
 neste repositório nem nas suas versões publicadas.
 
@@ -35,7 +35,7 @@ O principal trabalho em aberto, por ordem; os pormenores estão em [docs/project
 - **Sem bloqueios de GPU** e menos memória de GPU; depois, carregamentos sem soluços e um pacote para distribuições
   Linux que não são rolling release.
 - **A 1.8.0 ao nível da 1.0.0**: o seu formato ultrawide, o tamanho do mapa de sombras e a semente fixa
-  ([#19](https://github.com/adriadam10/mkw-recomp/issues/19)).
+  ([#19](https://github.com/seriouschiz/kar-recomp/issues/19)).
 
 \* Medido a 09/11/2026 na nossa máquina de testes: APU Radeon 660M (Ryzen 5 7535HS), Linux, resolução interna 720p.
 
@@ -45,7 +45,7 @@ O principal trabalho em aberto, por ordem; os pormenores estão em [docs/project
 
 Os tempos por fotograma medidos, cada um com a versão testada, estão em [docs/project/performance.md](docs/project/performance.md). Para
 acrescentar a sua máquina, abra um
-[relatório de desempenho](https://github.com/adriadam10/mkw-recomp/issues/new?template=performance.yml): entra na
+[relatório de desempenho](https://github.com/seriouschiz/kar-recomp/issues/new?template=performance.yml): entra na
 tabela com a versão indicada. Os tempos são os fotogramas do próprio jogo: a geração de fotogramas mostra mais
 fotogramas, mas não os encurta. 16,7 ms são 60 fps; com a Taxa de fotogramas em Automático (a da consola) desce para
 30 fps quando não se chega aos 60, e um fotograma acima de 33,3 ms faz a corrida andar mais devagar do que o tempo
@@ -67,9 +67,9 @@ real.
 
 ![A página Ficheiros do jogo, onde a preparação recebe o dump do jogador](docs/images/launcher-files.png)
 
-1. Extraia o dump de Mario Kart World 1.0.0 ou 1.8.0 da sua Switch 2 (`exefs/` e `romfs/`, desencriptados; a 1.8.0 com
+1. Extraia o dump de Kirby Air Riders 1.0.0 ou 1.8.0 da sua Switch 2 (`exefs/` e `romfs/`, desencriptados; a 1.8.0 com
    a atualização integrada na RomFS do jogo base), ou esse mesmo dump empacotado num único ficheiro `.nup` ou `.nx`.
-2. Transfira o launcher para o seu sistema em [Versões](https://github.com/adriadam10/mkw-recomp/releases): em Linux o
+2. Transfira o launcher para o seu sistema em [Versões](https://github.com/seriouschiz/kar-recomp/releases): em Linux o
    `.AppImage` (`-aarch64` em ARM; a pasta do jogo por omissão é `~/.local/share/mkw-recomp`; glibc 2.31 ou mais
    recente: Debian 11, Ubuntu 20.04, SteamOS e posteriores), em Windows o `.zip`, descompactado numa pasta. Ambos
    precisam de cerca de 30 GB livres.
@@ -130,7 +130,7 @@ desinstale o dispositivo dessa interface no Gestor de Dispositivos com «elimina
 
 A página **Mods** do ecrã inicial instala os mods tal como são publicados para o jogo e lista-os em dois separadores:
 
-- **Procurar no GameBanana**: os mods de Mario Kart World no [GameBanana](https://gamebanana.com/games/22152),
+- **Procurar no GameBanana**: os mods de Kirby Air Riders no [GameBanana](https://gamebanana.com/games/22152),
   listados ou pesquisados, com o autor, a licença, as capturas de ecrã e a descrição de cada um. **Instalar** transfere
   o ficheiro do GameBanana, só quando o pede.
 - **Instalados**: os seus mods, cada um com o seu interruptor; **Importar zip / Importar pasta** recebe um mod que já
@@ -222,7 +222,7 @@ a ele (ficheiros `LICENSE.*` em [recomp/](recomp/), [runtime/](runtime/), [sm86/
 stb_image, AMD FidelityFX FSR 1 e Roboto. Cada fonte usada, com a sua licença e o que dela foi tirado (código só de
 projetos MIT; de projetos GPL, só ideias), está listada em [docs/project/research.md](docs/project/research.md#sources).
 
-Mario Kart World é © Nintendo. Este projeto não é afiliado nem apoiado pela Nintendo, não contém código nem recursos do
+Kirby Air Riders é © Nintendo. Este projeto não é afiliado nem apoiado pela Nintendo, não contém código nem recursos do
 jogo e não ajuda a obtê-los.
 
 Os mods pertencem aos seus autores e têm as suas próprias licenças. Este projeto não é afiliado nem apoiado pelo
@@ -232,5 +232,5 @@ o ecrã inicial só mostra a listagem pública do GameBanana e transfere um mod 
 ## Contribuir
 
 Veja o [CONTRIBUTING.md](CONTRIBUTING.md). Os erros e os relatórios de desempenho vão para as
-[Issues](https://github.com/adriadam10/mkw-recomp/issues), as perguntas para as
-[Discussions](https://github.com/adriadam10/mkw-recomp/discussions).
+[Issues](https://github.com/seriouschiz/kar-recomp/issues), as perguntas para as
+[Discussions](https://github.com/seriouschiz/kar-recomp/discussions).
